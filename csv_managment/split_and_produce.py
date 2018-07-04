@@ -11,12 +11,18 @@ broker_adr = "10.33.1.131:29092" # remote
 ## definition du producer, sur lequel vont etre envoyés les données
 producer = KafkaProducer(bootstrap_servers=[broker_adr])
 
+# producer.send('test', b"test")
+
 ## ouverture du fichier, et parsing des différentes données
 with open(in_file, "r") as ff:
+	print("Launching process")
 	for idx, line in enumerate(ff):
 
 		if idx == 0:
 			continue
+
+		if idx > 10:
+			exit(0)
 
 		data = {}
 		split = line.split(";")
@@ -30,10 +36,16 @@ with open(in_file, "r") as ff:
 		Coordonnees = split[6].strip()
 		Nom = split[7].strip()
 
+		try:
+			new_temp = "%.3f" % (float(Temperature)/10)
+		except Exception as e:
+			print(e)
+			new_temp = ""
+
 		data['IDOMMstation'] = IDOMMstation
 		data['Date'] = Date
 		data['Pressionauniveaumer'] = Pressionauniveaumer
-		data['Temperature'] = Temperature
+		data['Temperature'] = str(new_temp)
 		data['Pointderosee'] = Pointderosee
 		data['Humidite'] = Humidite
 		data['Coordonnees'] = Coordonnees
@@ -42,8 +54,8 @@ with open(in_file, "r") as ff:
 		## generation d'un json contenant les données de la ligne
 		json_data = json.dumps(data)
 
-		## envoi des données au producer
-		producer.send('meteo', json_data.encode("utf-8"))
+		## envoi des données au producer, dans le topic "raw_station_data"
+		producer.send('raw_station_data', json_data.encode("utf-8"))
 
-		## definition du temps de latence d'envoi des données
-		time.sleep(0.1)
+		## definition de la fréquence d'envoi des données
+		time.sleep(0.5)
