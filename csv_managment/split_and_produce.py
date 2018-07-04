@@ -1,16 +1,20 @@
 import time
 import json
+from kafka import KafkaProducer
 
 file = "synop-data-meteo-cleaned.csv"
 
-with open(file, "r") as ff:
+broker_adr = "10.33.1.131:29092"
+# producer = KafkaProducer(bootstrap_servers=[broker_adr])
+
+with open(file, "rb") as ff:
 	for idx, line in enumerate(ff):
 
 		if idx == 0:
 			continue
 
 		data = {}
-		split = line.split(";")
+		split = line.split(b";")
 
 		IDOMMstation = split[0].strip()
 		Date = split[1].strip()
@@ -21,17 +25,19 @@ with open(file, "r") as ff:
 		Coordonnees = split[6].strip()
 		Nom = split[7].strip()
 
-		data['IDOMMstation'] = IDOMMstation
-		data['Date'] = Date
-		data['Pressionauniveaumer'] = Pressionauniveaumer
-		data['Temperature'] = Temperature
-		data['Pointderosee'] = Pointderosee
-		data['Humidite'] = Humidite
-		data['Coordonnees'] = Coordonnees
-		data['Nom'] = Nom
+		data[b'IDOMMstation'] = IDOMMstation
+		data[b'Date'] = Date
+		data[b'Pressionauniveaumer'] = Pressionauniveaumer
+		data[b'Temperature'] = Temperature
+		data[b'Pointderosee'] = Pointderosee
+		data[b'Humidite'] = Humidite
+		data[b'Coordonnees'] = Coordonnees
+		data[b'Nom'] = Nom
 
-		json_data = json.dumps(data)
+		# json_data = json.dumps(data)
+		# json_data = json.dumps(data)
 
-		print(json_data)
+		# producer.send('meteo', json_data)
+		print(data)
 
 		time.sleep(0.5)
