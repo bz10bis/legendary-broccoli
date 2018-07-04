@@ -2,19 +2,25 @@ import time
 import json
 from kafka import KafkaProducer
 
-file = "synop-data-meteo-cleaned.csv"
+in_file = "synop-data-meteo-cleaned.csv"
 
-broker_adr = "10.33.1.131:29092"
+
+## Definition de l'adresse du broker
+broker_adr = "10.33.1.131:29092" # remote
+# broker_adr = "10.33.2.217:9092" # local
+
+## definition du producer, sur lequel vont etre envoyés les données
 producer = KafkaProducer(bootstrap_servers=[broker_adr])
 
-with open(file, "rb") as ff:
+## ouverture du fichier, et parsing des différentes données
+with open(in_file, "r") as ff:
 	for idx, line in enumerate(ff):
 
 		if idx == 0:
 			continue
 
 		data = {}
-		split = line.split(b";")
+		split = line.split(";")
 
 		IDOMMstation = split[0].strip()
 		Date = split[1].strip()
@@ -25,19 +31,20 @@ with open(file, "rb") as ff:
 		Coordonnees = split[6].strip()
 		Nom = split[7].strip()
 
-		data[b'IDOMMstation'] = IDOMMstation
-		data[b'Date'] = Date
-		data[b'Pressionauniveaumer'] = Pressionauniveaumer
-		data[b'Temperature'] = Temperature
-		data[b'Pointderosee'] = Pointderosee
-		data[b'Humidite'] = Humidite
-		data[b'Coordonnees'] = Coordonnees
-		data[b'Nom'] = Nom
+		data['IDOMMstation'] = IDOMMstation
+		data['Date'] = Date
+		data['Pressionauniveaumer'] = Pressionauniveaumer
+		data['Temperature'] = Temperature
+		data['Pointderosee'] = Pointderosee
+		data['Humidite'] = Humidite
+		data['Coordonnees'] = Coordonnees
+		data['Nom'] = Nom
 
-		# json_data = json.dumps(data)
-		# json_data = json.dumps(data)
+		## generation d'un json contenant les données de la ligne
+		json_data = json.dumps(data)
 
-		producer.send('meteo', data)
-		print(data)
+		## envoi des données au producer
+		producer.send('meteo', json_data.encode("utf-8"))
 
-		time.sleep(0.5)
+		## definition du temps de latence d'envoi des données
+		time.sleep(0.1)
