@@ -5,7 +5,7 @@ from kafka import KafkaProducer
 file = "synop-data-meteo-cleaned.csv"
 
 broker_adr = "10.33.1.131:29092"
-# producer = KafkaProducer(bootstrap_servers=[broker_adr])
+producer = KafkaProducer(bootstrap_servers=[broker_adr])
 
 with open(file, "rb") as ff:
 	for idx, line in enumerate(ff):
@@ -37,7 +37,7 @@ with open(file, "rb") as ff:
 		# json_data = json.dumps(data)
 		# json_data = json.dumps(data)
 
-		# producer.send('meteo', json_data)
+		producer.send('meteo', data)
 		print(data)
 
 		time.sleep(0.5)
