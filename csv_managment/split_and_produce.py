@@ -2,12 +2,12 @@ import time
 import json
 from kafka import KafkaProducer
 
-file = "synop-data-meteo-cleaned.csv"
+source_file = "../datasets/synop-data-meteo-cleaned.csv"
 
-broker_adr = "10.33.1.131:29092"
+broker_adr = "localhost:29092"
 producer = KafkaProducer(bootstrap_servers=[broker_adr])
 
-with open(file, "rb") as ff:
+with open(source_file, "rb") as ff:
 	for idx, line in enumerate(ff):
 
 		if idx == 0:

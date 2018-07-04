@@ -8,10 +8,6 @@ config = {
     "source_file": "synop-data-meteo-cleaned"
 }
 
-producer = KafkaProducer(boostrap_servers=[config['boostrap']])
+producer = KafkaProducer(bootstrap_servers=[config['bootstrap']])
 
-def main():
-    print("##### CSV PARSER #####")
-
-if __name__ == '__main__':
-    main()
+producer.send(config['to'], b'hello')
