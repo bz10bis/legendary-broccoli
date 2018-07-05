@@ -21,14 +21,14 @@ with open(in_file, "r") as ff:
 		if idx == 0:
 			continue
 
-		if idx > 10:
+		if idx > 11:
 			exit(0)
 
 		data = {}
 		split = line.split(";")
 
 		IDOMMstation = split[0].strip()
-		Date = split[1].strip()
+		Dateprelevement = split[1].strip()
 		Pressionauniveaumer = split[2].strip()
 		Temperature = split[3].strip()
 		Pointderosee = split[4].strip()
@@ -43,7 +43,7 @@ with open(in_file, "r") as ff:
 			new_temp = ""
 
 		data['IDOMMstation'] = IDOMMstation
-		data['Date'] = Date
+		data['Dateprelevement'] = Dateprelevement
 		data['Pressionauniveaumer'] = Pressionauniveaumer
 		data['Temperature'] = str(new_temp)
 		data['Pointderosee'] = Pointderosee
