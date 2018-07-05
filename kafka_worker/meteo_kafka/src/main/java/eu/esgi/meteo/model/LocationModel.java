@@ -3,7 +3,7 @@ package eu.esgi.meteo.model;
 public class LocationModel {
     public String nom;
     public String code;
-    public String[] codesPostaux;
+    //public String[] codesPostaux;
     public String codeDepartement;
     public String codeRegion;
 
@@ -22,7 +22,7 @@ public class LocationModel {
     public void setCode(String code) {
         this.code = code;
     }
-
+    /*
     public String[] getCodesPostaux() {
         return codesPostaux;
     }
@@ -30,7 +30,7 @@ public class LocationModel {
     public void setCodesPostaux(String[] codesPostaux) {
         this.codesPostaux = codesPostaux;
     }
-
+    */
     public String getCodeDepartement() {
         return codeDepartement;
     }

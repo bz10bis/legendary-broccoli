@@ -25,7 +25,7 @@ public class MeteoProcessor {
         final String bootstrapServers = args.length > 0 ? args[0] : "10.33.1.131:29092";
         String applicationId = "transform-meteo-stream";
         String clientId = "transform-meteo-stream-client";
-        String sourceTopic = "raw_station_data";
+        String sourceTopic = "raw_station_test";
         System.out.println("Broker address: " + bootstrapServers);
         final Properties streamsConfiguration = new Properties();
         streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "transform1-meteo-stream");
@@ -48,8 +48,8 @@ public class MeteoProcessor {
                 .stream(sourceTopic, Consumed.with(stringSerde, MeteoEventSerde))
                 .mapValues(ev -> {
                     try{
+                        ev.setCodeDep(locationApi.fetchCodesPost(ev.getLat(),ev.getLon()));
                         System.out.println(mapper.writeValueAsString(ev));
-                        ev.setCodesPostaux(locationApi.fetchCodesPost(ev.getLat(),ev.getLon()));
                     } catch (JsonProcessingException ex) {
                         System.out.println("Error writing ev");
                         return ev;

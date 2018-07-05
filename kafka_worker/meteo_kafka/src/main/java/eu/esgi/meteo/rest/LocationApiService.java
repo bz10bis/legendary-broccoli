@@ -15,15 +15,21 @@ public class LocationApiService {
         locationApi = client.target(baseUrl);
     }
 
-    public String[] fetchCodesPost(String lat, String lon) {
+    public String fetchCodesPost(String lat, String lon) {
         WebTarget target = locationApi.path("communes");
         target = target.queryParam("lat",lat);
         target = target.queryParam("lon", lon);
-        target = target.queryParam("fields", "nom,code,codesPostaux,codeDepartement,codeRegion,population");
+        target = target.queryParam("fields", "nom,code,codeDepartement,codeRegion");
         target = target.queryParam("format", "json");
         target = target.queryParam("geometry", "centre");
         System.out.println(target);
-        LocationModel r = target.request(MediaType.APPLICATION_JSON).get(LocationModel.class);
-        return r.getCodesPostaux();
+
+        LocationModel[] r = target.request(MediaType.APPLICATION_JSON).get(LocationModel[].class);
+
+        String res = "INCONNU";
+        if (r.length>0) {
+            res = r[0].getCodeDepartement();
+        }
+        return res;
     }
 }

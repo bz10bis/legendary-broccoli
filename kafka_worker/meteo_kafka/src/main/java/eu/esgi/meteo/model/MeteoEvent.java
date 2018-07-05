@@ -10,8 +10,8 @@ public class MeteoEvent {
     public String Humidite;
     public String Coordonnees;
     public String  Nom;
-    public String codePos;
-    public String[] codesPostaux;
+    public String codeDep;
+    //public String[] codesPostaux;
 
     public String getIDOMMstation() {
         return IDOMMstation;
@@ -45,22 +45,26 @@ public class MeteoEvent {
         return Nom;
     }
 
-    public String getCodePos() { return codePos; }
+    public String getCodeDep() { return codeDep; }
 
-    public String[] getCodesPostaux() {
+    /*public String[] getCodesPostaux() {
         return codesPostaux;
     }
 
     public void setCodesPostaux(String[] codesPostaux) {
         this.codesPostaux = codesPostaux;
     }
-
+*/
     public String getLat() {
         return this.Coordonnees.split(",")[0].trim();
     }
 
     public String getLon() {
         return this.Coordonnees.split(",")[1].trim();
+    }
+
+    public void setCodeDep(String codeDep) {
+        this.codeDep = codeDep;
     }
 
 }
