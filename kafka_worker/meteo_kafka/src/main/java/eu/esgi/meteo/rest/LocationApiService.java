@@ -16,7 +16,13 @@ public class LocationApiService {
     }
 
     public String[] fetchCodesPost(String lat, String lon) {
-        WebTarget target = locationApi.path("communes?lat=" + lat + "&lon=" + lon +"&fields=nom,code,codesPostaux,codeDepartement,codeRegion,population&format=json&geometry=centre");
+        WebTarget target = locationApi.path("communes");
+        target = target.queryParam("lat",lat);
+        target = target.queryParam("lon", lon);
+        target = target.queryParam("fields", "nom,code,codesPostaux,codeDepartement,codeRegion,population");
+        target = target.queryParam("format", "json");
+        target = target.queryParam("geometry", "centre");
+        System.out.println(target);
         LocationModel r = target.request(MediaType.APPLICATION_JSON).get(LocationModel.class);
         return r.getCodesPostaux();
     }

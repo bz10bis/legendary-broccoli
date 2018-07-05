@@ -22,14 +22,14 @@ public class MeteoProcessor {
 
         System.out.println("######## METEO STREAM PROCESSOR ########");
         System.out.println("Initialize app...");
-        final String bootstrapServers = args.length > 0 ? args[0] : "localhost:29092";
+        final String bootstrapServers = args.length > 0 ? args[0] : "10.33.1.131:29092";
         String applicationId = "transform-meteo-stream";
         String clientId = "transform-meteo-stream-client";
         String sourceTopic = "raw_station_data";
         System.out.println("Broker address: " + bootstrapServers);
         final Properties streamsConfiguration = new Properties();
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "transform-meteo-stream");
-        streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "transform-meteo-stream-client");
+        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "transform1-meteo-stream");
+        streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "transform1-meteo-stream-client");
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.ByteArray().getClass().getName());
         streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
@@ -43,9 +43,7 @@ public class MeteoProcessor {
         ObjectMapper mapper = new ObjectMapper();
 
         LocationApiService locationApi = new LocationApiService("https://geo.api.gouv.fr/");
-
         final StreamsBuilder builder = new StreamsBuilder();
-
         final KStream<String, MeteoEvent> meteoStream = builder
                 .stream(sourceTopic, Consumed.with(stringSerde, MeteoEventSerde))
                 .mapValues(ev -> {
@@ -58,7 +56,6 @@ public class MeteoProcessor {
                     }
                     return ev;
                 });
-
         final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
         streams.cleanUp();
         streams.start();
