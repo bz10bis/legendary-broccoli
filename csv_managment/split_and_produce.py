@@ -2,11 +2,12 @@ import time
 import json
 from kafka import KafkaProducer
 
-in_file = "synop-data-meteo-cleaned.csv"
+in_file = "../datasets/synop-data-meteo-cleaned.csv"
 
 ## Definition de l'adresse du broker
 broker_adr = "10.33.1.131:29092" # remote
 # broker_adr = "10.33.2.217:9092" # local
+target_topic = 'raw_station_test'
 
 ## definition du producer, sur lequel vont etre envoyés les données
 producer = KafkaProducer(bootstrap_servers=[broker_adr])
@@ -55,7 +56,7 @@ with open(in_file, "r") as ff:
 		json_data = json.dumps(data)
 
 		## envoi des données au producer, dans le topic "raw_station_data"
-		producer.send('raw_station_data', json_data.encode("utf-8"))
+		producer.send(target_topic, json_data.encode("utf-8"))
 
 		## definition de la fréquence d'envoi des données
 		time.sleep(0.5)

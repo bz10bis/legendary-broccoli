@@ -5,9 +5,9 @@ public class MeteoEvent {
     public String IDOMMstation;
     public String Dateprelevement;
     public String Pressionauniveaumer;
-    public String Temperature;
-    public String Pointderosee;
-    public String Humidite;
+    public Double Temperature;
+    public Double Pointderosee;
+    public Double Humidite;
     public String Coordonnees;
     public String  Nom;
     public String codeDep;
@@ -25,15 +25,15 @@ public class MeteoEvent {
         return Pressionauniveaumer;
     }
 
-    public String getTemperature() {
+    public Double getTemperature() {
         return Temperature;
     }
 
-    public String getPointderosee() {
+    public Double getPointderosee() {
         return Pointderosee;
     }
 
-    public String getHumidite() {
+    public Double getHumidite() {
         return Humidite;
     }
 

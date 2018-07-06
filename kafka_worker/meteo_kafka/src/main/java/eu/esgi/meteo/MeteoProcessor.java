@@ -7,11 +7,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.Consumed;
-import org.apache.kafka.streams.KafkaStreams;
-import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.kstream.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +19,7 @@ public class MeteoProcessor {
 
         System.out.println("######## METEO STREAM PROCESSOR ########");
         System.out.println("Initialize app...");
-        final String bootstrapServers = args.length > 0 ? args[0] : "10.33.1.131:29092";
+        final String bootstrapServers = args.length > 0 ? args[0] : "localhost:29092";
         String applicationId = "transform-meteo-stream";
         String clientId = "transform-meteo-stream-client";
         String sourceTopic = "raw_station_test";
@@ -38,6 +35,7 @@ public class MeteoProcessor {
         System.out.println("Source topic: " + sourceTopic);
 
         final Serde<String> stringSerde = Serdes.String();
+        final Serde<Double> doubleSerde = Serdes.Double();
         final Map<String, Object> serdeProps = new HashMap<>();
         final Serde<MeteoEvent> MeteoEventSerde = SerdeFactory.createSerde(MeteoEvent.class, serdeProps);
         ObjectMapper mapper = new ObjectMapper();
@@ -56,6 +54,17 @@ public class MeteoProcessor {
                     }
                     return ev;
                 });
+
+        final KGroupedStream<String, MeteoEvent> depMeteoStream = meteoStream.map(
+                (key, val) -> {
+                    return new KeyValue<String, MeteoEvent>(val.getCodeDep(), val);
+                }
+        ).groupByKey();
+
+        final KTable<String, Double> tableMeteoEvent = depMeteoStream.reduce(
+                (val1,val2) -> val1.getTemperature() + val2.getTemperature(), "sum"
+        );
+
         final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
         streams.cleanUp();
         streams.start();
