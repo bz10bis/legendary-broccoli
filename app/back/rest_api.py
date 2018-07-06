@@ -21,23 +21,31 @@ _demo = False
 _flag_init = False
 __version__ = '1.0'
 
+# "raw_station_data"
+topics = ["meteo_departements"]
 
-meteo_datas = {}
 
-class Consumer_meteo(Thread):
-    def __init__(self):
+class new_Consumer(Thread):
+    def __init__(self, topic):
+        print('new thread')
+        self._topic = topic
+        self.datas = {}
         Thread.__init__(self)
 
     def run(self):
         """Code à exécuter pendant l'exécution du thread."""
-        global meteo_datas
-        topic = TopicPartition('meteo', 0)
+        topic = TopicPartition(self._topic, 0)
         c = KafkaConsumer(bootstrap_servers='10.33.1.131:29092')
+        # c = KafkaConsumer(bootstrap_servers='10.33.0.42:29092')
+        # c = KafkaConsumer(bootstrap_servers='192.168.99.100:29092')
         c.assign([topic])
 
         for msg in c:
+            print(msg)
             row = json.loads(msg.value)
-            meteo_datas[row['IDOMMstation']] = row
+            print(row)
+            self.datas[row['IDOMMstation']] = row
+
 
 # ----------- gestion de jsonp callback -----------------#
 def jsonp(func):
@@ -58,8 +66,9 @@ def jsonp(func):
 # Récupère les msg envoyés par un broker kafka
 class get_meteo(object):
     @jsonp
-    def index(self, args):
-        data = {"test": {"reponse": meteo_datas}}
+    def index(self, topic):
+        data = {topic: threads[topic].datas}
+        print(data)
         cherrypy.response.headers['Access-Control-Allow-Origin'] = '*'
         return simplejson.dumps(data)
 
@@ -122,10 +131,16 @@ if True:  # demarrage serveur
                 cherrypy.engine.start()
 
                 # Création des threads consumer
-                thread_1 = Consumer_meteo()
+                #     thread_1 = Consumer_meteo()
                 # Lancement des threads
-                thread_1.start()
+                #     thread_1.start()
 
+                # Création des threads consumer
+                print("****** TOPICS **********")
+                for topic in topics:
+                    print("-"+topic)
+                    threads = {topic: new_Consumer(str(topic))}
+                    threads[topic].start()
                 cherrypy.engine.block()
             finally:
                 print("****** SERVEUR KO **********")
