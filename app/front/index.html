@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Coquillages et savon mousse</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="style/index.css">
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script src="js/index.js"></script>
+
+    <style>
+
+        #mapid { height: 700px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">Météo France <i class="fas fa-globe-africa"></i></a>
+            </div>
+
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" role="button" aria-expanded="false" onclick="get_topic_info('raw_station_data', 'humidity')"><i class="fas fa-thermometer-half"></i>  Températures</a>
+                    </li>
+                </ul>
+
+                <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                        <a href="#" role="button" aria-expanded="false" onclick="get_topic_info('raw_station_data', 'humidity')"><i class="fas fa-umbrella"></i>  Humidité</a>
+
+                    </li>
+                </ul>
+
+                <!--<ul class="nav navbar-nav">-->
+                    <!--<li class="dropdown">-->
+                        <!--<button type="button" class="btn btn-primary" style="margin-top: 10px" onclick="set_popup_info({02 : {popup : 'test'}})">popup</button>-->
+                    <!--</li>-->
+                <!--</ul>-->
+
+                <!--<ul class="nav navbar-nav">-->
+                    <!--<li class="dropdown">-->
+                        <!--<button type="button" class="btn btn-primary" onclick="set_humidity({'61996': {'IDOMMstation': '61996','Dateprelevement': '2016-09-28T02:00:00+02:00','Pressionauniveaumer': '102330','Temperature': '28.395','Pointderosee': '279.15','Humidite': '72','Coordonnees': '-37.795167, 77.569167','Nom': 'NOUVELLE AMSTERDAM', 'Departement': '02'}})">set color 02</button>-->
+                    <!--</li>-->
+                <!--</ul>-->
+
+                <!--<ul class="nav navbar-nav">-->
+                    <!--<li class="dropdown">-->
+                        <!--<button type="button" class="btn btn-link" onclick="remove_layer('02')">remove layer 02</button>-->
+                    <!--</li>-->
+                <!--</ul>-->
+
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div id="mapid"></div>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+
+<script src="http://cdn.leafletjs.com/leaflet-0.7.4/leaflet.js"></script>
+<script>
+
+    humidity = false;
+    temperature = false;
+
+    mymap = L.map('mapid').setView([51.505, -0.09], 10);
+    layers = {};
+    $.getJSON("departements.geojson",function(data){
+        map_layers = L.geoJson(data ,{
+            onEachFeature: function(feature, featureLayer) {
+                if(featureLayer.hasOwnProperty('options')){
+                    layers[featureLayer.feature.properties.code] = featureLayer;
+                    featureLayer.options.color = "#808080";
+                    featureLayer.options.weight = 1;
+                    featureLayer.options.fillOpacity = 0.5;
+                }
+                else{
+                    for(var element in featureLayer._layers) {
+                        featureLayer._layers[element].options.color = "#808080";
+                        featureLayer._layers[element].options.weight = 1;
+                        featureLayer._layers[element].options.fillOpacity = 0.5;
+                    }
+                }
+                featureLayer.bindPopup(feature.properties.code + " : " + feature.properties.nom);
+            }
+        }).addTo(mymap);
+        mymap.fitBounds(map_layers.getBounds());
+
+        console.log(mymap);
+
+    });
+
+    function set_popup_info(regions) {
+        for(var code in regions){
+            if(regions.hasOwnProperty(code)){
+                for(var layer in mymap._layers){
+                    if(mymap._layers.hasOwnProperty(layer)){
+                        if(mymap._layers[layer].hasOwnProperty('feature')) {
+                            if(parseInt(mymap._layers[layer].feature.properties.code) === parseInt(code)) mymap._layers[layer].bindPopup(regions[code].popup);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function remove_layer(code){
+        for(var layer in mymap._layers){
+            if(mymap._layers.hasOwnProperty(layer)){
+                if(mymap._layers[layer].hasOwnProperty('feature')) {
+                    if(parseInt(mymap._layers[layer].feature.properties.code) === parseInt(code)) mymap.removeLayer(mymap._layers[layer]);
+                }
+            }
+        }
+    }
+
+    function get_color_humidity(grade){
+        console.log(grade);
+        var rounded = Math.round(parseFloat(grade)/10);
+        console.log(rounded);
+        var colors = {
+            1 : "#ffffff",
+            2 : "#cceeff",
+            3 : "#99ddff",
+            4 : "#66ccff",
+            5 : "#33bbff",
+            6 : "#0088cc",
+            7 : "#006699",
+            8 : "#004466",
+            9 : "#002233"
+        };
+        return colors[rounded];
+    }
+
+    function get_color_temp(grade){
+        console.log(grade);
+        var rounded = Math.round(parseFloat(grade)/10);
+        console.log(rounded);
+        var colors = {
+            0 : "#ccffff",
+            1 : "#ffff66",
+            2 : "#ffcc00",
+            3 : "#ff6600",
+            4 : "#ff0000",
+            5 : "#000000"
+        };
+        return colors[rounded];
+    }
+
+    function set_humidity(topic, regions) {
+        var datas = regions[topic];
+        console.log(datas);
+        for (var id in datas) {
+            if (datas.hasOwnProperty(id)) {
+                for (var layer in mymap._layers) {
+                    if (mymap._layers.hasOwnProperty(layer)) {
+                        if(mymap._layers[layer].hasOwnProperty('feature')){
+                            console.log("ok feature exist");
+                            if (parseInt(mymap._layers[layer].feature.properties['code']) === parseInt(datas[id]['Departement'])) {
+                                var color = get_color_humidity(datas[id].Humidite);
+                                mymap._layers[layer].setStyle({fillColor: color});
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function update_infos(topic) {
+
+    }
+
+    function get_topic_info(topic, data) {
+        if(data === 'temperature'){
+            $.ajax({
+                url: "http://169.254.209.164:8000/meteo/?topic="+topic,
+                dataType: 'json',
+                success: function (datas) {
+                    if(data === 'temperature') set_temperatures(datas);
+                }
+            });
+        }
+
+        if(data === 'humidity'){
+            $.ajax({
+                url: "http://169.254.209.164:8000/meteo/?topic="+topic,
+                dataType: 'json',
+                success: function (datas) {
+                    if(data === 'humidity') set_humidity(topic, datas);
+                }
+            });
+            }
+
+        return false;
+    }
+
+</script>
+</body>
+</html>
