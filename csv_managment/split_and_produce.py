@@ -59,6 +59,7 @@ with open(in_file, "r") as ff:
 
 		## envoi des données au producer, dans le topic "raw_station_data"
 		producer.send(target_topic, encoded_json, key = b'raw')
+		
 
 		## definition de la fréquence d'envoi des données
 		time.sleep(0.5)
